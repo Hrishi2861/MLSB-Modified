@@ -229,13 +229,13 @@ function s_validate() {
           src="https://telegra.ph/file/43af672249c94053356c7.jpg"
           alt="logo"
         />
-        <a href="https://t.me/anas_tayyar">
+        <a href="https://t.me/hrishikesh2861">
           <h2 class="name">Bittorrent Selection</h2>
         </a>
       </div>
       <div class="social">
-        <a href="https://www.github.com/anasty17/mirror-leech-switch-bot"><i class="fab fa-github"></i></a>
-        <a href="https://t.me/anas_tayyar"><i class="fab fa-telegram"></i></a>
+        <a href="https://github.com/Hrishi2861/MLSB-Modified"><i class="fab fa-github"></i></a>
+        <a href="https://t.me/hrishikesh2861"><i class="fab fa-telegram"></i></a>
       </div>
     </header>
     <div id="sticks">
@@ -621,13 +621,13 @@ section span{
           src="https://telegra.ph/file/43af672249c94053356c7.jpg"
           alt="logo"
         />
-        <a href="https://t.me/anas_tayyar">
+        <a href="https://t.me/hrishikesh2861">
           <h2 class="name">Bittorrent Selection</h2>
         </a>
       </div>
       <div class="social">
-        <a href="https://www.github.com/anasty17/mirror-leech-switch-bot"><i class="fab fa-github"></i></a>
-        <a href="https://t.me/anas_tayyar"><i class="fab fa-telegram"></i></a>
+        <a href="https://github.com/Hrishi2861/MLSB-Modified"><i class="fab fa-github"></i></a>
+        <a href="https://t.me/hrishikesh2861"><i class="fab fa-telegram"></i></a>
       </div>
     </header>
     <section>
@@ -782,7 +782,7 @@ def set_priority(id_):
 
 @app.route("/")
 def homepage():
-    return "<h1>See mirror-leech-switch-bot <a href='https://www.github.com/anasty17/mirror-leech-switch-bot'>@GitHub</a> By <a href='https://github.com/anasty17'>Anas</a></h1>"
+    return "<h1>See <a href='https://github.com/Hrishi2861/MLSB-Modified'>MLSB-Modified</a> By <a href='https://github.com/Hrishi2861'>Hrishikesh</a><br><b>Base Repo By <a href='https://github.com/anasty17'>Anas</a></b></h1>"
 
 
 @app.errorhandler(Exception)
