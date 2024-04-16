@@ -4,7 +4,9 @@ from bot.helper.ext_utils.status_utils import (
     get_readable_file_size,
     get_readable_time,
 )
+from pkg_resources import get_distribution
 
+engine_ = f"Yt-dlp v{get_distribution('yt-dlp').version}"
 
 class YtDlpDownloadStatus:
     def __init__(self, listener, obj, gid):
@@ -12,6 +14,8 @@ class YtDlpDownloadStatus:
         self._gid = gid
         self.listener = listener
         self._proccessed_bytes = 0
+        self.engine = engine_
+        self.message = listener.message
 
     def gid(self):
         return self._gid

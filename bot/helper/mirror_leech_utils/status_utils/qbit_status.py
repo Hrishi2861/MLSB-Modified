@@ -1,6 +1,6 @@
 from asyncio import sleep
 
-from bot import LOGGER, get_qb_client, QbTorrents, qb_listener_lock
+from bot import LOGGER, get_qb_client, QbTorrents, qb_listener_lock, get_client
 from bot.helper.ext_utils.bot_utils import sync_to_async
 from bot.helper.ext_utils.status_utils import (
     MirrorStatus,
@@ -8,6 +8,7 @@ from bot.helper.ext_utils.status_utils import (
     get_readable_time,
 )
 
+engine_ = f"qBit {get_client().app.version}"
 
 def get_download(client, tag, old_info=None):
     try:
@@ -25,6 +26,8 @@ class QbittorrentStatus:
         self.seeding = seeding
         self.listener = listener
         self._info = None
+        self.engine = engine_
+        self.message = listener.message
 
     def update(self):
         self._info = get_download(self.client, f"{self.listener.mid}", self._info)

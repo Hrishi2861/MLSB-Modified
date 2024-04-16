@@ -1,12 +1,18 @@
 from bot.helper.ext_utils.status_utils import MirrorStatus
+from subprocess import run as rrun
 
+def _eng_ver():
+    _engine = rrun(['rclone', 'version'], capture_output=True, text=True)
+    return _engine.stdout.split('\n')[0].split(' ')[1]
 
 class RcloneStatus:
-    def __init__(self, listener, obj, gid, status):
+    def __init__(self, listener, obj, gid, status, message):
         self._obj = obj
         self._gid = gid
         self._status = status
         self.listener = listener
+        self.engine = f'Rclone {_eng_ver()}'
+        self.message = message
 
     def gid(self):
         return self._gid

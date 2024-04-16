@@ -4,12 +4,14 @@ from bot.helper.ext_utils.status_utils import (
     get_readable_time,
 )
 
+engine_ = f"Aria2 v{aria2.client.get_version()['version']}"
 
 class DirectStatus:
     def __init__(self, listener, obj, gid):
         self._gid = gid
         self._obj = obj
         self.listener = listener
+        self.engine = engine_
 
     def gid(self):
         return self._gid

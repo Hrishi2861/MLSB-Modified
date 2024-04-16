@@ -7,6 +7,8 @@ class SampleVideoStatus:
         self.listener = listener
         self._gid = gid
         self._size = self.listener.size
+        self.message = listener.message
+        self.engine = "Supra Car Engine"
 
     def gid(self):
         return self._gid

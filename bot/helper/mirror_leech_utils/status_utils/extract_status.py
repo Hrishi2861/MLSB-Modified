@@ -1,5 +1,5 @@
 from time import time
-
+from subprocess import run as prun
 from bot import LOGGER, subprocess_lock
 from bot.helper.ext_utils.files_utils import get_path_size
 from bot.helper.ext_utils.status_utils import (
@@ -8,6 +8,9 @@ from bot.helper.ext_utils.status_utils import (
     get_readable_time,
 )
 
+def _eng_ver():
+    _engine = prun(['7z', '-version'], capture_output=True, text=True)
+    return _engine.stdout.split('\n')[2].split(' ')[2]
 
 class ExtractStatus:
     def __init__(self, listener, gid):
@@ -16,6 +19,8 @@ class ExtractStatus:
         self._gid = gid
         self._start_time = time()
         self._proccessed_bytes = 0
+        self.engine = f'p7zip v{_eng_ver()}'
+        self.message = listener.message
 
     def gid(self):
         return self._gid

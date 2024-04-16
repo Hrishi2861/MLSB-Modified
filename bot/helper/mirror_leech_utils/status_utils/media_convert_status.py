@@ -7,6 +7,8 @@ class MediaConvertStatus:
         self.listener = listener
         self._gid = gid
         self._size = self.listener.size
+        self.engine = "Media Converter v69.0"
+        self.message = listener.message
 
     def gid(self):
         return self._gid

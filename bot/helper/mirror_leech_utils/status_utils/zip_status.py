@@ -7,7 +7,11 @@ from bot.helper.ext_utils.status_utils import (
     MirrorStatus,
     get_readable_time,
 )
+from subprocess import run as zrun
 
+def _eng_ver():
+    _engine = zrun(['7z', '-version'], capture_output=True, text=True)
+    return _engine.stdout.split('\n')[2].split(' ')[2]
 
 class ZipStatus:
     def __init__(self, listener, gid):
@@ -16,6 +20,8 @@ class ZipStatus:
         self._gid = gid
         self._start_time = time()
         self._proccessed_bytes = 0
+        self.engine = f'p7zip v{_eng_ver()}'
+        self.message = listener.message
 
     def gid(self):
         return self._gid
