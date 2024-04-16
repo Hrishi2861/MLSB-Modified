@@ -184,7 +184,9 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
             msg += f"\n⌑ {get_progress_bar_string(progress)} » {progress}"
             msg += f"\n<b>💯 Done   : </b> {task.processed_bytes()} of {task.size()}"
             msg += f"\n<b>🚀 Speed  : </b> {task.speed()}"
+            msg += f"\n<b>🏎 Engine : </b> {task.engine}"
             msg += f"\n<b>⏳ ETA    : </b> {task.eta()}"
+            msg += f"\n<b>👤 User   : </b> @{task.message.user.username}"
             msg += f"\n<b>💽 Size   : </b> {task.size()}"
             if hasattr(task, "seeders_num"):
                 try:
