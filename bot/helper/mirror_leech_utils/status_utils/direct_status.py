@@ -3,7 +3,7 @@ from bot.helper.ext_utils.status_utils import (
     get_readable_file_size,
     get_readable_time,
 )
-
+from bot import aria2, LOGGER
 engine_ = f"Aria2 v{aria2.client.get_version()['version']}"
 
 class DirectStatus:
