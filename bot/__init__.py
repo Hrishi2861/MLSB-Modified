@@ -398,7 +398,7 @@ config_dict = {
 }
 
 log_info("Creating client from BOT_TOKEN")
-bot = stClient(BOT_TOKEN, "🚀 JET BOT")
+bot = stClient(BOT_TOKEN, "🚀 JET LEECH BOT")
 bot_loop = bot._loop
 bot_name = bot.user.user_name
 
