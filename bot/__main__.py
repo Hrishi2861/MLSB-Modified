@@ -68,30 +68,30 @@ async def stats(ctx):
     swap = swap_memory()
     memory = virtual_memory()
     stats = (
-        f"<b>Commit Date:</b> {last_commit}\n\n"
-        f"<b>Bot Uptime:</b> {get_readable_time(time() - botStartTime)}\n"
-        f"<b>OS Uptime:</b> {get_readable_time(time() - boot_time())}\n\n"
-        f"<b>Total Disk Space:</b> {get_readable_file_size(total)}\n"
-        f"<b>Used:</b> {get_readable_file_size(used)} | <b>Free:</b> {get_readable_file_size(free)}\n\n"
-        f"<b>Upload:</b> {get_readable_file_size(net_io_counters().bytes_sent)}\n"
-        f"<b>Download:</b> {get_readable_file_size(net_io_counters().bytes_recv)}\n\n"
-        f"<b>CPU:</b> {cpu_percent(interval=0.5)}%\n"
-        f"<b>RAM:</b> {memory.percent}%\n"
-        f"<b>DISK:</b> {disk}%\n\n"
-        f"<b>Physical Cores:</b> {cpu_count(logical=False)}\n"
-        f"<b>Total Cores:</b> {cpu_count(logical=True)}\n\n"
-        f"<b>SWAP:</b> {get_readable_file_size(swap.total)} | <b>Used:</b> {swap.percent}%\n"
-        f"<b>Memory Total:</b> {get_readable_file_size(memory.total)}\n"
-        f"<b>Memory Free:</b> {get_readable_file_size(memory.available)}\n"
-        f"<b>Memory Used:</b> {get_readable_file_size(memory.used)}\n"
+        f"<b>📆 Commit Date:</b> {last_commit}\n\n"
+        f"<b>🤖 Bot Uptime:</b> {get_readable_time(time() - botStartTime)}\n"
+        f"<b>💻 OS Uptime:</b> {get_readable_time(time() - boot_time())}\n\n"
+        f"<b>💽 Total Disk Space:</b> {get_readable_file_size(total)}\n"
+        f"<b>📂 Used:</b> {get_readable_file_size(used)} | <b>🙅 Free:</b> {get_readable_file_size(free)}\n\n"
+        f"<b>🔺 Upload:</b> {get_readable_file_size(net_io_counters().bytes_sent)}\n"
+        f"<b>🔻 Download:</b> {get_readable_file_size(net_io_counters().bytes_recv)}\n\n"
+        f"<b>🖥️ CPU:</b> {cpu_percent(interval=0.5)}%\n"
+        f"<b>💯 RAM:</b> {memory.percent}%\n"
+        f"<b>💿 DISK:</b> {disk}%\n\n"
+        f"<b>🔥 Physical Cores:</b> {cpu_count(logical=False)}\n"
+        f"<b>🌋 Total Cores:</b> {cpu_count(logical=True)}\n\n"
+        f"<b>⚡ SWAP:</b> {get_readable_file_size(swap.total)} | <b>👀 Used:</b> {swap.percent}%\n"
+        f"<b>🧨 Memory Total:</b> {get_readable_file_size(memory.total)}\n"
+        f"<b>🗿 Memory Free:</b> {get_readable_file_size(memory.available)}\n"
+        f"<b>📱 Memory Used:</b> {get_readable_file_size(memory.used)}\n"
     )
     await sendMessage(ctx.event.message, stats)
 
 
 async def start(ctx):
     buttons = ButtonMaker()
-    buttons.ubutton("Repo", "https://www.github.com/anasty17/mirror-leech-telegram-bot")
-    buttons.ubutton("Owner", "https://t.me/anas_tayyar")
+    buttons.ubutton("Repo", "https://github.com/Hrishi2861/MLSB-Modified")
+    buttons.ubutton("Owner", "https://t.me/hrishikesh2861")
     reply_markup = buttons.build_menu(2)
     if await CustomFilters.authorized(ctx):
         start_string = f"""
@@ -159,7 +159,7 @@ NOTE: Try each command without any argument to see more detalis.
 / {BotCommands.UserSetCommand[0]} or /{BotCommands.UserSetCommand[1]} [query]: Users settings.
 / {BotCommands.BotSetCommand[0]} or /{BotCommands.BotSetCommand[1]} [query]: Bot settings.
 / {BotCommands.BtSelectCommand}: Select files from torrents by gid or reply.
-/ {BotCommands.CancelTaskCommand[0]} or /{BotCommands.CancelTaskCommand[1]} [gid]: Cancel task by gid or reply.
+/ {BotCommands.CancelTaskCommand} [gid]: Cancel task by gid or reply.
 / {BotCommands.ForceStartCommand[0]} or /{BotCommands.ForceStartCommand[1]} [gid]: Force start task by gid or reply.
 / {BotCommands.CancelAllCommand} [query]: Cancel all [status] tasks.
 / {BotCommands.ListCommand} [query]: Search in Google Drive(s).
@@ -268,10 +268,7 @@ def register_bot_cmds():
                 True,
             ),
             BotCommand(
-                BotCommands.CancelTaskCommand[0], "Cancel task by gid or reply", True
-            ),
-            BotCommand(
-                BotCommands.CancelTaskCommand[1], "Cancel task by gid or reply", True
+                BotCommands.CancelTaskCommand, "Cancel task by gid or reply", True
             ),
             BotCommand(BotCommands.CancelAllCommand, "Cancel all [status] tasks", True),
             BotCommand(BotCommands.ListCommand, "Search in Google Drive(s)", True),
