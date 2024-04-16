@@ -167,7 +167,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
         tasks[start_position : STATUS_LIMIT + start_position], start=1
     ):
         tstatus = await sync_to_async(task.status) if status == "All" else status
-        msg += f"{index + start_position}. <b>{tstatus}: </b>"
+        msg += f"\n{index + start_position}. <b>{tstatus}: \n</b>"
         msg += f"<b>Filename:</b> <copy>{escape(f'{task.name()}')}</copy>"
         if tstatus not in [
             MirrorStatus.STATUS_SPLITTING,
@@ -185,7 +185,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
             msg += f"\n<b>💯 Done   : </b> {task.processed_bytes()} of {task.size()}"
             msg += f"\n<b>🚀 Speed  : </b> {task.speed()}"
             msg += f"\n<b>⏳ ETA    : </b> {task.eta()}"
-            msg += f"\n<b>💽 Size   : </b>"
+            msg += f"\n<b>💽 Size   : </b>{task.size()}"
             if hasattr(task, "seeders_num"):
                 try:
                     msg += f"\n<b>🌱S/L     :    </b> {task.seeders_num()}/{task.leechers_num()}"

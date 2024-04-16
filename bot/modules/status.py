@@ -38,7 +38,7 @@ async def mirror_status(ctx):
     if count == 0:
         currentTime = get_readable_time(time() - botStartTime)
         free = get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)
-        msg = f"<b>Uninstall Switch, and Enjoy your Life.</b>\n\nNo Active Tasks!"
+        msg = f"<b>Uninstall Switch, and Enjoy your Life.</b>\n\nNo Active Tasks!\n"
         msg += (
             f"\n<b>🖥️ CPU:</b> {cpu_percent()}% | <b>💿 FREE:</b> {free}"
             f"\n<b>💯 RAM:</b> {virtual_memory().percent}% | <b>⏳ UPTIME:</b> {currentTime}"
