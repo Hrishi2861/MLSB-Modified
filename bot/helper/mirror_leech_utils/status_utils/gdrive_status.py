@@ -8,14 +8,14 @@ from pkg_resources import get_distribution
 engine_ = f"G-Api v{get_distribution('google-api-python-client').version}"
 
 class GdriveStatus:
-    def __init__(self, listener, obj, gid, status, message):
+    def __init__(self, listener, obj, gid, status):
         self.listener = listener
         self._obj = obj
         self._size = self.listener.size
         self._gid = gid
         self._status = status
         self.engine = engine_
-        self.message = message
+        self.message = listener.message
 
     def processed_bytes(self):
         return get_readable_file_size(self._obj.processed_bytes)
