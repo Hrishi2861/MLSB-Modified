@@ -167,7 +167,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
         tasks[start_position : STATUS_LIMIT + start_position], start=1
     ):
         tstatus = await sync_to_async(task.status) if status == "All" else status
-        msg += f"\n{index + start_position}. <b>{tstatus}: \n</b>"
+        msg += f"\n\n{index + start_position}. <b>{tstatus}: \n</b>"
         msg += f"<b>Filename:</b> <copy>{escape(f'{task.name()}')}</copy>"
         if tstatus not in [
             MirrorStatus.STATUS_SPLITTING,
