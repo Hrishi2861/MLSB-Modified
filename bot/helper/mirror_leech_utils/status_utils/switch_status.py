@@ -9,7 +9,7 @@ from pkg_resources import get_distribution
 engine_ = f"Swibots v{get_distribution('swibots').version}"
 
 class SwitchStatus:
-    def __init__(self, listener, obj, gid, status):
+    def __init__(self, listener, obj, gid, status, message):
         self.listener = listener
         self._obj = obj
         self._size = self.listener.size
