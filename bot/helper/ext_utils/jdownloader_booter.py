@@ -1,5 +1,5 @@
-from aiofiles.os import path, makedirs
-from json import dump
+from aiofiles.os import path, makedirs, listdir, rename
+from aioshutil import rmtree
 from random import randint
 from asyncio import sleep
 
@@ -64,6 +64,18 @@ class JDownloader(Myjdapi):
         ) as sf:
             sf.truncate(0)
             dump(jdata, sf)
+        
+        if not await path.exists("/JDownloader/JDownloader.jar"):
+            pattern = r"JDownloader\.jar\.backup.\d$"
+            for filename in await listdir("/JDownloader"):
+                if match(pattern, filename):
+                    await rename(
+                        f"/JDownloader/{filename}", "/JDownloader/JDownloader.jar"
+                    )
+                    break
+            await rmtree("/JDownloader/update")
+            await rmtree("/JDownloader/tmp")
+            
         cmd = "java -Dsun.jnu.encoding=UTF-8 -Dfile.encoding=UTF-8 -Djava.awt.headless=true -jar /JDownloader/JDownloader.jar"
         _, __, code = await cmd_exec(cmd, shell=True)
         if code != -9:
