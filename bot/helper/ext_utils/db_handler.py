@@ -2,8 +2,8 @@ from aiofiles import open as aiopen
 from aiofiles.os import path as aiopath, makedirs
 from dotenv import dotenv_values
 from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
+from pymongo.errors import PyMongoError
 
 from bot import (
     DATABASE_URL,
@@ -38,8 +38,8 @@ class DbManager:
             return
         # Save bot settings
         try:
-            await self._db.settings.config.update_one(
-                {"_id": bot_id}, {"$set": config_dict}, upsert=True
+            await self._db.settings.config.replace_one(
+                {"_id": bot_id}, config_dict, upsert=True
             )
         except Exception as e:
             LOGGER.error(f"DataBase Collection Error: {e}")
@@ -52,9 +52,7 @@ class DbManager:
             )
         # Save qbittorrent options
         if await self._db.settings.qbittorrent.find_one({"_id": bot_id}) is None:
-            await self._db.settings.qbittorrent.update_one(
-                {"_id": bot_id}, {"$set": qbit_options}, upsert=True
-            )
+            await self.save_qbit_settings()
         # User Data
         if await self._db.users.find_one():
             rows = self._db.users.find({})
@@ -126,6 +124,14 @@ class DbManager:
             return
         await self._db.settings.qbittorrent.update_one(
             {"_id": bot_id}, {"$set": {key: value}}, upsert=True
+        )
+        self._conn.close
+
+    async def save_qbit_settings(self):
+        if self._err:
+            return
+        await self._db.settings.qbittorrent.update_one(
+            {"_id": bot_id}, {"$set": qbit_options}, upsert=True
         )
         self._conn.close
 
