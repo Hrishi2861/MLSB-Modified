@@ -1,6 +1,6 @@
 from aiofiles.os import remove, path as aiopath
 from swibots import CommandHandler, CallbackQueryHandler, regexp
-
+from httpx import AsyncClient
 from bot import (
     bot,
     aria2,
@@ -22,6 +22,37 @@ from bot.helper.switch_helper.message_utils import (
     deleteMessage,
 )
 
+async def initiate_search_tools():
+    qb_plugins = await sync_to_async(qbittorrent_client.search_plugins)
+    if SEARCH_PLUGINS := config_dict["SEARCH_PLUGINS"]:
+        globals()["PLUGINS"] = []
+        src_plugins = eval(SEARCH_PLUGINS)
+        if qb_plugins:
+            names = [plugin["name"] for plugin in qb_plugins]
+            await sync_to_async(qbittorrent_client.search_uninstall_plugin, names=names)
+        await sync_to_async(qbittorrent_client.search_install_plugin, src_plugins)
+    elif qb_plugins:
+        for plugin in qb_plugins:
+            await sync_to_async(
+                qbittorrent_client.search_uninstall_plugin, names=plugin["name"]
+            )
+        globals()["PLUGINS"] = []
+
+    if SEARCH_API_LINK := config_dict["SEARCH_API_LINK"]:
+        global SITES
+        try:
+            async with AsyncClient() as client:
+                response = await client.get(f"{SEARCH_API_LINK}/api/v1/sites")
+                data = response.json()
+            SITES = {
+                str(site): str(site).capitalize() for site in data["supported_sites"]
+            }
+            SITES["all"] = "All"
+        except Exception as e:
+            LOGGER.error(
+                f"{e} Can't fetching sites from SEARCH_API_LINK make sure use latest version of API"
+            )
+            SITES = None
 
 async def select(ctx):
     message = ctx.event.message
