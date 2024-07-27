@@ -194,34 +194,18 @@ def register_bot_cmds():
     bot.set_bot_commands(
         [
             BotCommand(BotCommands.StartCommand, "Start the bot", True),
-            BotCommand(BotCommands.MirrorCommand[0], "Start mirroring to cloud", True),
             BotCommand(BotCommands.MirrorCommand[1], "Start mirroring to cloud", True),
-            BotCommand(
-                BotCommands.QbMirrorCommand[0],
-                "Start Mirroring to cloud using qBittorrent",
-                True,
-            ),
             BotCommand(
                 BotCommands.QbMirrorCommand[1],
                 "Start Mirroring to cloud using qBittorrent",
                 True,
             ),
             BotCommand(
-                BotCommands.YtdlCommand[0], "Mirror yt-dlp supported link", True
-            ),
-            BotCommand(
                 BotCommands.YtdlCommand[1], "Mirror yt-dlp supported link", True
             ),
-            BotCommand(BotCommands.LeechCommand[0], "Start leeching to Switch", True),
             BotCommand(BotCommands.LeechCommand[1], "Start leeching to Switch", True),
             BotCommand(
-                BotCommands.QbLeechCommand[0], "Start leeching using qBittorrent", True
-            ),
-            BotCommand(
                 BotCommands.QbLeechCommand[1], "Start leeching using qBittorrent", True
-            ),
-            BotCommand(
-                BotCommands.YtdlLeechCommand[0], "Leech yt-dlp supported link", True
             ),
             BotCommand(
                 BotCommands.YtdlLeechCommand[1], "Leech yt-dlp supported link", True
@@ -239,8 +223,6 @@ def register_bot_cmds():
             ),
             BotCommand(BotCommands.UserSetCommand[0], "Users settings", True),
             BotCommand(BotCommands.BotSetCommand[0], "Bot settings", True),
-            BotCommand(BotCommands.UserSetCommand[1], "Users settings", True),
-            BotCommand(BotCommands.BotSetCommand[1], "Bot settings", True),
             BotCommand(
                 BotCommands.BtSelectCommand,
                 "Select files from torrents by gid or reply",
@@ -250,7 +232,6 @@ def register_bot_cmds():
                 BotCommands.CancelTaskCommand, "Cancel task by gid or reply", True
             ),
             BotCommand(BotCommands.CancelAllCommand, "Cancel all [status] tasks", True),
-            BotCommand(BotCommands.ListCommand, "Search in Google Drive(s)", True),
             BotCommand(BotCommands.SearchCommand, "Search for torrents with API", True),
             BotCommand(
                 BotCommands.StatusCommand, "Shows a status of all the downloads", True
@@ -275,11 +256,6 @@ def register_bot_cmds():
                 "Unauthorize a chat or a user to use the bot (Only Owner & Sudo)",
                 True,
             ),
-            BotCommand(
-                BotCommands.UsersCommand,
-                "Show users settings (Only Owner & Sudo)",
-                True,
-            ),
             BotCommand(BotCommands.AddSudoCommand, "Add sudo user (Only Owner)", True),
             BotCommand(
                 BotCommands.RmSudoCommand, "Remove sudo users (Only Owner)", True
@@ -296,17 +272,6 @@ def register_bot_cmds():
             ),
             BotCommand(
                 BotCommands.ShellCommand, "Run shell commands (Only Owner)", True
-            ),
-            BotCommand(
-                BotCommands.AExecCommand,
-                "Exec async functions (Only Owner)",
-                True,
-            ),
-            BotCommand(
-                BotCommands.ExecCommand, "Exec sync functions (Only Owner)", True
-            ),
-            BotCommand(
-                BotCommands.ClearLocalsCommand, "Clear locals (Only Owner)", True
             ),
             BotCommand(BotCommands.RssCommand, "RSS Menu", True),
         ]
