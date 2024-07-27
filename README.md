@@ -62,13 +62,10 @@ programming in Python.
 - Embed the original thumbnail and add it for leech
 - All supported audio formats
 
-## JDownloader
+## Mega
 
-- Synchronize Settings (global option)
-- Waiting to select (enable/disable files or change variants) before download start
-- DLC file support
-- All settings can be edited from the remote access to your JDownloader with Web Interface, Android App, iPhone App or
-  Browser Extensions
+- Mega Download Support
+- Add your Mega Email and Password
 
 ## Mongo Database
 
@@ -308,10 +305,10 @@ quotes, even if it's `Int`, `Bool` or `List`.
       decrease `AsyncIOThreadsCount`, set limit of `DiskWriteCacheSize` to `32` and decrease `MemoryWorkingSetLimit`
       from qbittorrent.conf or bsetting command.
 
-**8. JDownloader**
+**8. Mega**
 
-- `JD_EMAIL`: jdownlaoder email sign up on [JDownloader](https://my.jdownloader.org/)
-- `JD_PASS`: jdownlaoder password
+- `MEGA_EMAIL`: mega email sign up on [Mega](https://mega.nz)
+- `MEGA_PASSWORD`: mega password
 
 **9. RSS**
 
@@ -346,6 +343,14 @@ quotes, even if it's `Int`, `Bool` or `List`.
 - `SEARCH_PLUGINS`: List of qBittorrent search plugins (github raw links). I have added some plugins, you can remove/add
   plugins as you want. Main
   Source: [qBittorrent Search Plugins (Official/Unofficial)](https://github.com/qbittorrent/search-plugins/wiki/Unofficial-search-plugins). `List`
+
+**12. Limits**
+
+- Storage threshold limit 
+- Mega limits
+- Torrent limits
+- Direct download limits
+- Google drive limits
 
 ------
 
