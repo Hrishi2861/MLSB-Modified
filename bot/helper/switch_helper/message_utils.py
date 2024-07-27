@@ -62,6 +62,11 @@ async def auto_delete_message(cmd_message=None, bot_message=None):
     if bot_message is not None:
         await deleteMessage(bot_message)
 
+async def delete_links(message):
+    if config_dict["DELETE_LINKS"]:
+        if reply_to := message.reply_to_message:
+            await deleteMessage(reply_to)
+        await deleteMessage(message)
 
 async def delete_status():
     async with task_dict_lock:

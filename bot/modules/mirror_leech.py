@@ -16,6 +16,7 @@ from bot.helper.ext_utils.links_utils import (
     is_url,
     is_magnet,
     is_gdrive_link,
+    is_mega_link,
     is_rclone_path,
     is_telegram_link,
     is_gdrive_id,
@@ -28,8 +29,8 @@ from bot.helper.mirror_leech_utils.download_utils.direct_link_generator import (
     direct_link_generator,
 )
 from bot.helper.mirror_leech_utils.download_utils.gd_download import add_gd_download
-from bot.helper.mirror_leech_utils.download_utils.jd_download import add_jd_download
 from bot.helper.mirror_leech_utils.download_utils.qbit_download import add_qb_torrent
+from bot.helper.mirror_leech_utils.download_utils.mega_download import add_mega_download
 from bot.helper.mirror_leech_utils.download_utils.rclone_download import add_rclone_download
 from bot.helper.mirror_leech_utils.download_utils.telegram_download import (
     TelegramDownloadHelper,
@@ -40,7 +41,6 @@ from bot.helper.mirror_leech_utils.download_utils.switch_download import (
 from bot.helper.switch_helper.bot_commands import BotCommands
 from bot.helper.switch_helper.filters import CustomFilters
 from bot.helper.switch_helper.message_utils import sendMessage
-from myjd.exception import MYJDException
 
 
 class Mirror(TaskListener):
@@ -50,7 +50,6 @@ class Mirror(TaskListener):
         message,
         isQbit=False,
         isLeech=False,
-        isJd=False,
         sameDir=None,
         bulk=None,
         multiTag=None,
@@ -69,7 +68,6 @@ class Mirror(TaskListener):
         super().__init__()
         self.isQbit = isQbit
         self.isLeech = isLeech
-        self.isJd = isJd
 
     @new_task
     async def newEvent(self):
@@ -220,7 +218,6 @@ class Mirror(TaskListener):
                     nextmsg,
                     self.isQbit,
                     self.isLeech,
-                    self.isJd,
                     self.sameDir,
                     self.bulk,
                     self.multiTag,
@@ -253,6 +250,7 @@ class Mirror(TaskListener):
             and not is_rclone_path(self.link)
             and not is_gdrive_id(self.link)
             and not is_gdrive_link(self.link)
+            and not is_mega_link(self.link)
         ):
             await sendMessage(
                 self.message, COMMAND_USAGE["mirror"][0], COMMAND_USAGE["mirror"][1]
@@ -271,8 +269,7 @@ class Mirror(TaskListener):
             return
 
         if (
-            not self.isJd
-            and not self.isQbit
+            not self.isQbit
             and not is_magnet(self.link)
             and not is_rclone_path(self.link)
             and not is_gdrive_link(self.link)
@@ -280,6 +277,7 @@ class Mirror(TaskListener):
             and file_ is None
             and not is_gdrive_id(self.link)
             and not tg_msg
+            and not is_mega_link(self.link)
         ):
             content_type = await get_content_type(self.link)
             if content_type is None or re_match(r"text/html|text/plain", content_type):
@@ -304,22 +302,14 @@ class Mirror(TaskListener):
             await SwitchDownloadHelper(self).add_download(reply_to, f"{path}/")
         elif isinstance(self.link, dict):
             await add_direct_download(self, path)
-        elif self.isJd:
-            try:
-                await add_jd_download(self, path)
-            except (Exception, MYJDException) as e:
-                await sendMessage(self.message, f"{e}".strip())
-                self.removeFromSameDir()
-                return
-            finally:
-                if await aiopath.exists(self.link):
-                    await remove(self.link)
         elif self.isQbit:
             await add_qb_torrent(self, path, ratio, seed_time)
         elif is_rclone_path(self.link):
             await add_rclone_download(self, f"{path}/")
         elif is_gdrive_link(self.link) or is_gdrive_id(self.link):
             await add_gd_download(self, path)
+        elif is_mega_link(self.link):
+            await add_mega_download(self, f"{path}/")
         else:
             ussr = args["-au"]
             pssw = args["-ap"]
@@ -346,15 +336,6 @@ async def leech(ctx):
 async def qb_leech(ctx):
     Mirror(ctx.app, ctx.event.message, isQbit=True, isLeech=True).newEvent()
 
-
-async def jd_mirror(ctx):
-    Mirror(ctx.app, ctx.event.message, isJd=True).newEvent()
-
-
-async def jd_leech(ctx):
-    Mirror(ctx.app, ctx.event.message, isLeech=True, isJd=True).newEvent()
-
-
 bot.add_handler(
     CommandHandler(BotCommands.MirrorCommand, mirror, filter=CustomFilters.authorized)
 )
@@ -369,15 +350,5 @@ bot.add_handler(
 bot.add_handler(
     CommandHandler(
         BotCommands.QbLeechCommand, qb_leech, filter=CustomFilters.authorized
-    )
-)
-bot.add_handler(
-    CommandHandler(
-        BotCommands.JdMirrorCommand, jd_mirror, filter=CustomFilters.authorized
-    )
-)
-bot.add_handler(
-    CommandHandler(
-        BotCommands.JdLeechCommand, jd_leech, filter=CustomFilters.authorized
     )
 )

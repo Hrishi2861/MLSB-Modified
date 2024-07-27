@@ -6,10 +6,16 @@ from yt_dlp import YoutubeDL, DownloadError
 
 from bot import task_dict_lock, task_dict, non_queued_dl, queue_dict_lock
 from bot.helper.ext_utils.bot_utils import sync_to_async, async_to_sync
-from bot.helper.ext_utils.task_manager import check_running_tasks, stop_duplicate_check
+from bot.helper.ext_utils.status_utils import get_readable_file_size
+from bot.helper.ext_utils.task_manager import check_running_tasks, limit_checker, stop_duplicate_check
 from bot.helper.mirror_leech_utils.status_utils.queue_status import QueueStatus
 from bot.helper.switch_helper.message_utils import sendStatusMessage
 from ..status_utils.yt_dlp_download_status import YtDlpDownloadStatus
+from bot.helper.switch_helper.message_utils import (
+    auto_delete_message,
+    delete_links,
+    sendStatusMessage
+)
 
 LOGGER = getLogger(__name__)
 
@@ -305,9 +311,28 @@ class YoutubeDLHelper:
         elif not self._listener.isLeech:
             self.opts["writethumbnail"] = False
 
-        msg, button = await stop_duplicate_check(self._listener)
+        (
+            msg,
+            button
+        ) = await stop_duplicate_check(self._listener)
         if msg:
-            await self._listener.onDownloadError(msg, button)
+            await self._listener.onDownloadError(
+                msg,
+                button
+            )
+            return
+        # self._listener.is_playlist = self.is_playlist
+        # self._listener.playlist_count = self.playlist_count
+        if limit_exceeded := await limit_checker(self._listener):
+            LOGGER.info(
+                f"Yt-Dlp Limit Exceeded: {self._listener.name} | {get_readable_file_size(self._listener.size)} | {self.playlist_count}"
+            )
+            ymsg = await self._listener.onDownloadError(limit_exceeded)
+            await delete_links(self._listener.message)
+            await auto_delete_message(
+                self._listener.message,
+                ymsg
+            )
             return
 
         add_to_queue, event = await check_running_tasks(self._listener)

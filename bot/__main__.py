@@ -25,7 +25,6 @@ from bot import (
 )
 from .helper.ext_utils.bot_utils import cmd_exec, sync_to_async, create_help_buttons
 from .helper.ext_utils.files_utils import clean_all, exit_clean_up
-from .helper.ext_utils.jdownloader_booter import jdownloader
 from .helper.ext_utils.status_utils import get_readable_file_size, get_readable_time
 from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.listeners.aria2_listener import start_aria2_listener
@@ -114,8 +113,6 @@ async def restart(ctx):
         scheduler.shutdown(wait=False)
     if qb := Intervals["qb"]:
         qb.cancel()
-    if jd := Intervals["jd"]:
-        jd.cancel()
     if st := Intervals["status"]:
         for intvl in list(st.values()):
             intvl.cancel()
@@ -123,7 +120,7 @@ async def restart(ctx):
     await sync_to_async(clean_all)
     await sleep(1)
     proc1 = await create_subprocess_exec(
-        "pkill", "-9", "-f", "gunicorn|aria2c|qbittorrent-nox|ffmpeg|rclone|java"
+        "pkill", "-9", "-f", "gunicorn|aria2c|qbittorrent-nox|ffmpeg|rclone"
     )
     proc2 = await create_subprocess_exec("python3", "update.py")
     await gather(proc1.wait(), proc2.wait())
@@ -147,11 +144,9 @@ help_string = f"""
 NOTE: Try each command without any argument to see more detalis.
 / {BotCommands.MirrorCommand[0]} or /{BotCommands.MirrorCommand[1]}: Start mirroring to cloud.
 / {BotCommands.QbMirrorCommand[0]} or /{BotCommands.QbMirrorCommand[1]}: Start Mirroring to cloud using qBittorrent.
-/ {BotCommands.JdMirrorCommand[0]} or /{BotCommands.JdMirrorCommand[1]}: Start Mirroring to cloud using JDownloader.
 / {BotCommands.YtdlCommand[0]} or /{BotCommands.YtdlCommand[1]}: Mirror yt-dlp supported link.
 / {BotCommands.LeechCommand[0]} or /{BotCommands.LeechCommand[1]}: Start leeching to Telegram.
 / {BotCommands.QbLeechCommand[0]} or /{BotCommands.QbLeechCommand[1]}: Start leeching using qBittorrent.
-/ {BotCommands.JdLeechCommand[0]} or /{BotCommands.JdLeechCommand[1]}: Start leeching using JDownloader.
 / {BotCommands.YtdlLeechCommand[0]} or /{BotCommands.YtdlLeechCommand[1]}: Leech yt-dlp supported link.
 / {BotCommands.CloneCommand} [drive_url]: Copy file/folder to Google Drive.
 / {BotCommands.CountCommand} [drive_url]: Count file/folder of Google Drive.
@@ -212,16 +207,6 @@ def register_bot_cmds():
                 True,
             ),
             BotCommand(
-                BotCommands.JdMirrorCommand[0],
-                "Start Mirroring to cloud using JDownloader",
-                True,
-            ),
-            BotCommand(
-                BotCommands.JdMirrorCommand[1],
-                "Start Mirroring to cloud using JDownloader",
-                True,
-            ),
-            BotCommand(
                 BotCommands.YtdlCommand[0], "Mirror yt-dlp supported link", True
             ),
             BotCommand(
@@ -234,12 +219,6 @@ def register_bot_cmds():
             ),
             BotCommand(
                 BotCommands.QbLeechCommand[1], "Start leeching using qBittorrent", True
-            ),
-            BotCommand(
-                BotCommands.JdLeechCommand[0], "Start leeching using JDownloader", True
-            ),
-            BotCommand(
-                BotCommands.JdLeechCommand[1], "Start leeching using JDownloader", True
             ),
             BotCommand(
                 BotCommands.YtdlLeechCommand[0], "Leech yt-dlp supported link", True
@@ -335,7 +314,6 @@ def register_bot_cmds():
 
 
 async def main():
-    jdownloader.initiate()
     register_bot_cmds()
     await bot.start()
     await gather(

@@ -4,13 +4,17 @@ from secrets import token_urlsafe
 
 from bot import task_dict, task_dict_lock, queue_dict_lock, non_queued_dl, LOGGER
 from bot.helper.ext_utils.bot_utils import cmd_exec
-from bot.helper.ext_utils.task_manager import check_running_tasks, stop_duplicate_check
+from bot.helper.ext_utils.task_manager import check_running_tasks, limit_checker
+from bot.helper.ext_utils.status_utils import get_readable_file_size
 from bot.helper.mirror_leech_utils.rclone_utils.transfer import RcloneTransferHelper
 from bot.helper.mirror_leech_utils.status_utils.queue_status import QueueStatus
 from bot.helper.mirror_leech_utils.status_utils.rclone_status import RcloneStatus
-from bot.helper.switch_helper.message_utils import sendStatusMessage
-
-
+from bot.helper.switch_helper.message_utils import (
+    auto_delete_message,
+    delete_links,
+    sendMessage,
+    sendStatusMessage
+)
 async def add_rclone_download(listener, path):
     if listener.link.startswith("mrcc:"):
         listener.link = listener.link.split("mrcc:", 1)[1]
@@ -71,20 +75,35 @@ async def add_rclone_download(listener, path):
     listener.size = rsize["bytes"]
     gid = token_urlsafe(12)
 
-    msg, button = await stop_duplicate_check(listener)
-    if msg:
-        await listener.onDownloadError(msg, button)
+    if limit_exceeded := await limit_checker(listener, isRclone=True):
+        LOGGER.info(f"Rclone Limit Exceeded: {listener.name} | {get_readable_file_size(listener.size)}")
+        rmsg = await sendMessage(
+            listener.message,
+            limit_exceeded
+        )
+        await delete_links(listener.message)
+        await auto_delete_message(
+            listener.message,
+            rmsg
+        )
         return
 
-    add_to_queue, event = await check_running_tasks(listener)
+    (
+        add_to_queue,
+        event
+    ) = await check_running_tasks(listener)
     if add_to_queue:
         LOGGER.info(f"Added to Queue/Download: {listener.name}")
         async with task_dict_lock:
-            task_dict[listener.mid] = QueueStatus(listener, gid, "dl")
+            task_dict[listener.mid] = QueueStatus(
+                listener,
+                gid,
+                "dl"
+            )
         await listener.onDownloadStart()
         if listener.multi <= 1:
             await sendStatusMessage(listener.message)
-        await event.wait()
+        await event.wait() # type: ignore
         if listener.isCancelled:
             return
         async with queue_dict_lock:
@@ -92,7 +111,12 @@ async def add_rclone_download(listener, path):
 
     RCTransfer = RcloneTransferHelper(listener)
     async with task_dict_lock:
-        task_dict[listener.mid] = RcloneStatus(listener, RCTransfer, gid, "dl")
+        task_dict[listener.mid] = RcloneStatus(
+            listener,
+            RCTransfer,
+            gid,
+            "dl",
+        )
 
     if add_to_queue:
         LOGGER.info(f"Start Queued Download with rclone: {listener.link}")
@@ -102,4 +126,8 @@ async def add_rclone_download(listener, path):
             await sendStatusMessage(listener.message)
         LOGGER.info(f"Download with rclone: {listener.link}")
 
-    await RCTransfer.download(remote, config_path, path)
+    await RCTransfer.download(
+        remote,
+        config_path,
+        path
+    )

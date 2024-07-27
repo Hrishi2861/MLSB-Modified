@@ -82,7 +82,6 @@ class TaskConfig:
         self.size = 0
         self.isLeech = False
         self.isQbit = False
-        self.isJd = False
         self.isClone = False
         self.isYtDlp = False
         self.equalSplits = False
@@ -162,15 +161,15 @@ class TaskConfig:
             else ["aria2", "!qB"]
         )
         if self.link not in ["rcl", "gdl"]:
-            if not self.isYtDlp and not self.isJd:
+            if not self.isYtDlp:
                 await self.isTokenExists(self.link, "dl")
         elif self.link == "rcl":
-            if not self.isYtDlp and not self.isJd:
+            if not self.isYtDlp:
                 self.link = await RcloneList(self).get_rclone_path("rcd")
                 if not is_rclone_path(self.link):
                     raise ValueError(self.link)
         elif self.link == "gdl":
-            if not self.isYtDlp and not self.isJd:
+            if not self.isYtDlp:
                 self.link = await gdriveList(self).get_target_id("gdd")
                 if not is_gdrive_id(self.link):
                     raise ValueError(self.link)
@@ -331,7 +330,6 @@ class TaskConfig:
             nextmsg,
             self.isQbit,
             self.isLeech,
-            self.isJd,
             self.sameDir,
             self.bulk,
             self.multiTag,
@@ -358,7 +356,6 @@ class TaskConfig:
                 nextmsg,
                 self.isQbit,
                 self.isLeech,
-                self.isJd,
                 self.sameDir,
                 self.bulk,
                 self.multiTag,

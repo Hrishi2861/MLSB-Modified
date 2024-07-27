@@ -6,7 +6,7 @@ from re import split as re_split, I, search as re_search, escape
 from shutil import rmtree
 from subprocess import run as srun
 from sys import exit as sexit
-
+from shutil import disk_usage
 from bot import aria2, LOGGER, DOWNLOAD_DIR, qbittorrent_client
 from bot.helper.ext_utils.bot_utils import sync_to_async, cmd_exec
 from .exceptions import NotSupportedExtractionArchive
@@ -204,3 +204,20 @@ async def join_files(path):
             for file_ in files:
                 if re_search(rf"{escape(res)}\.0[0-9]+$", file_):
                     await remove(f"{path}/{file_}")
+
+def check_storage_threshold(size, threshold, arch=False, alloc=False):
+    free = disk_usage(DOWNLOAD_DIR).free
+    if not alloc:
+        if (
+            not arch
+            and free - size < threshold
+            or arch
+            and free - (size * 2) < threshold
+        ):
+            return False
+    elif not arch:
+        if free < threshold:
+            return False
+    elif free - size < threshold:
+        return False
+    return True

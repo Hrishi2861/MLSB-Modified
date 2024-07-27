@@ -39,7 +39,6 @@ from bot import (
     qbittorrent_client,
     LOGGER,
     bot,
-    jd_downloads,
     get_qb_options,
 )
 from bot.helper.ext_utils.bot_utils import (
@@ -48,7 +47,6 @@ from bot.helper.ext_utils.bot_utils import (
     retry_function,
 )
 from bot.helper.ext_utils.db_handler import DbManager
-from bot.helper.ext_utils.jdownloader_booter import jdownloader
 from bot.helper.ext_utils.task_manager import start_from_queued
 from bot.helper.mirror_leech_utils.rclone_utils.serve import rclone_serve_booter
 from bot.helper.switch_helper.bot_commands import BotCommands
@@ -85,7 +83,6 @@ async def get_buttons(key=None, edit_type=None):
         buttons.ibutton("Private Files", "botset private")
         buttons.ibutton("Qbit Settings", "botset qbit")
         buttons.ibutton("Aria2c Settings", "botset aria")
-        buttons.ibutton("JDownloader Sync", "botset syncjd")
         buttons.ibutton("Close", "botset close")
         msg = "Bot Settings:"
     elif edit_type is not None:
@@ -267,8 +264,6 @@ async def edit_variable(ctx, pre_message, key):
         "RCLONE_SERVE_PASS",
     ]:
         await rclone_serve_booter()
-    elif key in ["JD_EMAIL", "JD_PASS"]:
-        jdownloader.initiate()
     elif key == "RSS_DELAY":
         addJob()
 
@@ -322,32 +317,6 @@ async def edit_qbit(ctx, pre_message, key):
     await deleteMessage(message)
     if DATABASE_URL:
         await DbManager().update_qbittorrent(key, value)
-
-
-async def sync_jdownloader():
-    if not DATABASE_URL or jdownloader.device is None:
-        return
-    try:
-        await wait_for(retry_function(jdownloader.update_devices), timeout=10)
-    except:
-        is_connected = await jdownloader.jdconnect()
-        if not is_connected:
-            LOGGER.error(jdownloader.error)
-            return
-        await jdownloader.connectToDevice()
-    await jdownloader.device.system.exit_jd()
-    if await aiopath.exists("cfg.zip"):
-        await remove("cfg.zip")
-    is_connected = await jdownloader.jdconnect()
-    if not is_connected:
-        LOGGER.error(jdownloader.error)
-        return
-    await jdownloader.connectToDevice()
-    await (
-        await create_subprocess_exec("7z", "a", "cfg.zip", "/JDownloader/cfg")
-    ).wait()
-    await DbManager().update_private_file("cfg.zip")
-
 
 async def update_private_file(ctx, pre_message):
     message = ctx.event.message
@@ -470,24 +439,6 @@ async def edit_bot_settings(ctx):
     elif data[1] == "back":
         globals()["START"] = 0
         await update_buttons(message, None)
-    elif data[1] == "syncjd":
-        if not config_dict["JD_EMAIL"] or not config_dict["JD_PASS"]:
-            await ctx.event.answer(
-                "No Email or Password provided!",
-                show_alert=True,
-            )
-            return
-        if jd_downloads:
-            await ctx.event.answer(
-                "You can't sync settings while using jdownloader!",
-                show_alert=True,
-            )
-            return
-        await ctx.event.answer(
-            "Syncronization Started. JDownloader will get restarted. It takes up to 5 sec!",
-            show_alert=True,
-        )
-        await sync_jdownloader()
     elif data[1] in ["var", "aria", "qbit"]:
         await update_buttons(message, data[1])
     elif data[1] == "resetvar":
@@ -541,10 +492,6 @@ async def edit_bot_settings(ctx):
         elif data[2] == "INDEX_URL":
             if DRIVES_NAMES and DRIVES_NAMES[0] == "Main":
                 INDEX_URLS[0] = ""
-        elif data[2] in ["JD_EMAIL", "JD_PASS"]:
-            jdownloader.device = None
-            jdownloader.error = "JDownloader Credentials not provided!"
-            await create_subprocess_exec("pkill", "-9", "-f", "java")
         config_dict[data[2]] = value
         await update_buttons(message, "var")
         if DATABASE_URL:
@@ -765,12 +712,6 @@ async def load_config():
                 x = x.lstrip(".")
             GLOBAL_EXTENSION_FILTER.append(x.strip().lower())
 
-    JD_EMAIL = environ.get("JD_EMAIL", "")
-    JD_PASS = environ.get("JD_PASS", "")
-    if len(JD_EMAIL) == 0 or len(JD_PASS) == 0:
-        JD_EMAIL = ""
-        JD_PASS = ""
-
     FILELION_API = environ.get("FILELION_API", "")
     if len(FILELION_API) == 0:
         FILELION_API = ""
@@ -936,9 +877,33 @@ async def load_config():
     if len(UPSTREAM_BRANCH) == 0:
         UPSTREAM_BRANCH = "master"
 
+    MEGA_EMAIL = environ.get("MEGA_EMAIL", "")
+    MEGA_PASSWORD = environ.get("MEGA_PASSWORD", "")
+    if (len(MEGA_EMAIL) == 0 or len(MEGA_PASSWORD) == 0):
+        MEGA_EMAIL = ""
+        MEGA_PASSWORD = ""
+
     DRIVES_IDS.clear()
     DRIVES_NAMES.clear()
     INDEX_URLS.clear()
+
+    TORRENT_LIMIT = environ.get("TORRENT_LIMIT", "")
+    TORRENT_LIMIT = ("" if len(TORRENT_LIMIT) == 0 else float(TORRENT_LIMIT))
+
+    DIRECT_LIMIT = environ.get("DIRECT_LIMIT", "")
+    DIRECT_LIMIT = ("" if len(DIRECT_LIMIT) == 0 else float(DIRECT_LIMIT))
+
+    GDRIVE_LIMIT = environ.get("GDRIVE_LIMIT", "")
+    GDRIVE_LIMIT = ("" if len(GDRIVE_LIMIT) == 0 else float(GDRIVE_LIMIT))
+
+    MEGA_LIMIT = environ.get("MEGA_LIMIT", "")
+    MEGA_LIMIT = ("" if len(MEGA_LIMIT) == 0 else float(MEGA_LIMIT))
+
+    DELETE_LINKS = environ.get("DELETE_LINKS", "")
+    DELETE_LINKS = DELETE_LINKS.lower() == "true"
+
+    STORAGE_THRESHOLD = environ.get("STORAGE_THRESHOLD", "")
+    STORAGE_THRESHOLD = ("" if len(STORAGE_THRESHOLD) == 0 else float(STORAGE_THRESHOLD))
 
     if GDRIVE_ID:
         DRIVES_NAMES.append("Main")
@@ -967,18 +932,22 @@ async def load_config():
             "CMD_SUFFIX": CMD_SUFFIX,
             "DATABASE_URL": DATABASE_URL,
             "DEFAULT_UPLOAD": DEFAULT_UPLOAD,
+            "DELETE_LINKS": DELETE_LINKS,
+            "DIRECT_LIMIT": DIRECT_LIMIT,
             "DOWNLOAD_DIR": DOWNLOAD_DIR,
             "EQUAL_SPLITS": EQUAL_SPLITS,
             "EXTENSION_FILTER": EXTENSION_FILTER,
             "FILELION_API": FILELION_API,
             "GDRIVE_ID": GDRIVE_ID,
+            "GDRIVE_LIMIT": GDRIVE_LIMIT,
             "INDEX_URL": INDEX_URL,
             "IS_TEAM_DRIVE": IS_TEAM_DRIVE,
-            "JD_EMAIL": JD_EMAIL,
-            "JD_PASS": JD_PASS,
             "LEECH_DUMP_CHAT": LEECH_DUMP_CHAT,
             "LEECH_FILENAME_PREFIX": LEECH_FILENAME_PREFIX,
             "LEECH_SPLIT_SIZE": LEECH_SPLIT_SIZE,
+            "MEGA_EMAIL": MEGA_EMAIL,
+            "MEGA_LIMIT": MEGA_LIMIT,
+            "MEGA_PASSWORD": MEGA_PASSWORD,
             "NAME_SUBSTITUTE": NAME_SUBSTITUTE,
             "OWNER_ID": OWNER_ID,
             "QUEUE_ALL": QUEUE_ALL,
@@ -998,11 +967,13 @@ async def load_config():
             "STATUS_LIMIT": STATUS_LIMIT,
             "STATUS_UPDATE_INTERVAL": STATUS_UPDATE_INTERVAL,
             "STOP_DUPLICATE": STOP_DUPLICATE,
+            "STORAGE_THRESHOLD": STORAGE_THRESHOLD,
             "STREAMWISH_API": STREAMWISH_API,
             "SUDO_USERS": SUDO_USERS,
             "TELEGRAM_API": TELEGRAM_API,
             "TELEGRAM_HASH": TELEGRAM_HASH,
             "TG_SESSION_STRING": TG_SESSION_STRING,
+            "TORRENT_LIMIT": TORRENT_LIMIT,
             "TORRENT_TIMEOUT": TORRENT_TIMEOUT,
             "UPSTREAM_REPO": UPSTREAM_REPO,
             "UPSTREAM_BRANCH": UPSTREAM_BRANCH,

@@ -51,9 +51,8 @@ LOGGER = getLogger(__name__)
 
 load_dotenv("config.env", override=True)
 
-Intervals = {"status": {}, "qb": "", "jd": "", "stopAll": False}
+Intervals = {"status": {}, "qb": "", "stopAll": False}
 QbTorrents = {}
-jd_downloads = {}
 DRIVES_NAMES = []
 DRIVES_IDS = []
 INDEX_URLS = []
@@ -77,7 +76,6 @@ except:
 task_dict_lock = Lock()
 queue_dict_lock = Lock()
 qb_listener_lock = Lock()
-jd_lock = Lock()
 cpu_eater_lock = Lock()
 subprocess_lock = Lock()
 status_dict = {}
@@ -122,10 +120,6 @@ if DATABASE_URL:
                     file_ = key.replace("__", ".")
                     with open(file_, "wb+") as f:
                         f.write(value)
-                    if file_ == "cfg.zip":
-                        run(["rm", "-rf", "/JDownloader/cfg"])
-                        run(["7z", "x", "cfg.zip", "-o/JDownloader"])
-                        remove("cfg.zip")
         if a2c_options := db.settings.aria2c.find_one({"_id": bot_id}):
             del a2c_options["_id"]
             aria2_options = a2c_options
@@ -233,12 +227,6 @@ if len(TG_SESSION_STRING) != 0 and TELEGRAM_HASH and TELEGRAM_API:
         tg = None
 else:
     tg = None
-
-JD_EMAIL = environ.get("JD_EMAIL", "")
-JD_PASS = environ.get("JD_PASS", "")
-if len(JD_EMAIL) == 0 or len(JD_PASS) == 0:
-    JD_EMAIL = ""
-    JD_PASS = ""
 
 FILELION_API = environ.get("FILELION_API", "")
 if len(FILELION_API) == 0:
@@ -363,6 +351,30 @@ if len(RCLONE_SERVE_PASS) == 0:
 NAME_SUBSTITUTE = environ.get("NAME_SUBSTITUTE", "")
 NAME_SUBSTITUTE = "" if len(NAME_SUBSTITUTE) == 0 else NAME_SUBSTITUTE
 
+MEGA_EMAIL = environ.get("MEGA_EMAIL", "")
+MEGA_PASSWORD = environ.get("MEGA_PASSWORD", "")
+if (len(MEGA_EMAIL) == 0 or len(MEGA_PASSWORD) == 0):
+    MEGA_EMAIL = ""
+    MEGA_PASSWORD = ""
+
+TORRENT_LIMIT = environ.get("TORRENT_LIMIT", "")
+TORRENT_LIMIT = ("" if len(TORRENT_LIMIT) == 0 else float(TORRENT_LIMIT))
+
+DIRECT_LIMIT = environ.get("DIRECT_LIMIT", "")
+DIRECT_LIMIT = ("" if len(DIRECT_LIMIT) == 0 else float(DIRECT_LIMIT))
+
+GDRIVE_LIMIT = environ.get("GDRIVE_LIMIT", "")
+GDRIVE_LIMIT = ("" if len(GDRIVE_LIMIT) == 0 else float(GDRIVE_LIMIT))
+
+MEGA_LIMIT = environ.get("MEGA_LIMIT", "")
+MEGA_LIMIT = ("" if len(MEGA_LIMIT) == 0 else float(MEGA_LIMIT))
+
+DELETE_LINKS = environ.get("DELETE_LINKS", "")
+DELETE_LINKS = DELETE_LINKS.lower() == "true"
+
+STORAGE_THRESHOLD = environ.get("STORAGE_THRESHOLD", "")
+STORAGE_THRESHOLD = ("" if len(STORAGE_THRESHOLD) == 0 else float(STORAGE_THRESHOLD))
+
 config_dict = {
     "AS_DOCUMENT": AS_DOCUMENT,
     "AUTHORIZED_CHATS": AUTHORIZED_CHATS,
@@ -372,18 +384,22 @@ config_dict = {
     "CMD_SUFFIX": CMD_SUFFIX,
     "DATABASE_URL": DATABASE_URL,
     "DEFAULT_UPLOAD": DEFAULT_UPLOAD,
+    "DELETE_LINKS": DELETE_LINKS,
+    "DIRECT_LIMIT": DIRECT_LIMIT,
     "DOWNLOAD_DIR": DOWNLOAD_DIR,
     "EQUAL_SPLITS": EQUAL_SPLITS,
     "EXTENSION_FILTER": EXTENSION_FILTER,
     "FILELION_API": FILELION_API,
     "GDRIVE_ID": GDRIVE_ID,
+    "GDRIVE_LIMIT": GDRIVE_LIMIT,
     "INDEX_URL": INDEX_URL,
     "IS_TEAM_DRIVE": IS_TEAM_DRIVE,
-    "JD_EMAIL": JD_EMAIL,
-    "JD_PASS": JD_PASS,
     "LEECH_DUMP_CHAT": LEECH_DUMP_CHAT,
     "LEECH_FILENAME_PREFIX": LEECH_FILENAME_PREFIX,
     "LEECH_SPLIT_SIZE": LEECH_SPLIT_SIZE,
+    "MEGA_EMAIL": MEGA_EMAIL,
+    "MEGA_LIMIT": MEGA_LIMIT,
+    "MEGA_PASSWORD": MEGA_PASSWORD,
     "NAME_SUBSTITUTE": NAME_SUBSTITUTE,
     "OWNER_ID": OWNER_ID,
     "QUEUE_ALL": QUEUE_ALL,
@@ -403,11 +419,13 @@ config_dict = {
     "STATUS_LIMIT": STATUS_LIMIT,
     "STATUS_UPDATE_INTERVAL": STATUS_UPDATE_INTERVAL,
     "STOP_DUPLICATE": STOP_DUPLICATE,
+    "STORAGE_THRESHOLD": STORAGE_THRESHOLD,
     "STREAMWISH_API": STREAMWISH_API,
     "SUDO_USERS": SUDO_USERS,
     "TELEGRAM_API": TELEGRAM_API,
     "TELEGRAM_HASH": TELEGRAM_HASH,
     "TG_SESSION_STRING": TG_SESSION_STRING,
+    "TORRENT_LIMIT": TORRENT_LIMIT,
     "TORRENT_TIMEOUT": TORRENT_TIMEOUT,
     "UPSTREAM_REPO": UPSTREAM_REPO,
     "UPSTREAM_BRANCH": UPSTREAM_BRANCH,

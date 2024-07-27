@@ -52,8 +52,16 @@ def is_gdrive_id(id_: str):
     )
 
 
+def is_mega_link(url):
+    return "mega.nz" in url or "mega.co.nz" in url
+
+
 def get_mega_link_type(url: str):
-    return "folder" if "folder" in url or "/#F!" in url else "file"
+    return (
+        "folder"
+        if "folder" in url or "/#F!" in url
+        else "file"
+    )
 
 
 async def get_tg_link_message(link):

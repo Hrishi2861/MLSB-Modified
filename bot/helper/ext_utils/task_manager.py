@@ -13,9 +13,10 @@ from bot.helper.ext_utils.bot_utils import (
     sync_to_async,
     get_telegraph_list,
 )
-from bot.helper.ext_utils.files_utils import get_base_name
+from bot.helper.ext_utils.files_utils import get_base_name, check_storage_threshold
 from bot.helper.ext_utils.links_utils import is_gdrive_id
 from bot.helper.mirror_leech_utils.gdrive_utils.search import gdSearch
+from bot.helper.ext_utils.status_utils import get_readable_file_size
 
 
 async def stop_duplicate_check(listener):
@@ -160,3 +161,51 @@ async def start_from_queued():
             if queued_dl:
                 for mid in list(queued_dl.keys()):
                     await start_dl_from_queued(mid)
+
+async def limit_checker(
+        listener,
+        isTorrent=False,
+        isMega=False,
+        isDriveLink=False,
+        isRclone=False,
+    ):
+    limit_exceeded = ""
+    if isMega:
+        if MEGA_LIMIT := config_dict["MEGA_LIMIT"]:
+            limit = MEGA_LIMIT * 1024**3
+            if listener.size > limit:
+                limit_exceeded = f"Mega limit is {get_readable_file_size(limit)}"
+    elif isDriveLink:
+        if GDRIVE_LIMIT := config_dict["GDRIVE_LIMIT"]:
+            limit = GDRIVE_LIMIT * 1024**3
+            if listener.size > limit:
+                limit_exceeded = f"Google drive limit is {get_readable_file_size(limit)}"
+    elif isTorrent or listener.isTorrent:
+        if TORRENT_LIMIT := config_dict["TORRENT_LIMIT"]:
+            limit = TORRENT_LIMIT * 1024**3
+            if listener.size > limit:
+                limit_exceeded = f"Torrent limit is {get_readable_file_size(limit)}"
+    elif DIRECT_LIMIT := config_dict["DIRECT_LIMIT"]:
+        limit = DIRECT_LIMIT * 1024**3
+        if listener.size > limit:
+            limit_exceeded = f"Direct limit is {get_readable_file_size(limit)}"
+    if not limit_exceeded and (
+        STORAGE_THRESHOLD := config_dict["STORAGE_THRESHOLD"]
+    ) and not listener.isClone:
+        arch = any(
+            [
+                listener.compress,
+                listener.extract
+            ]
+        )
+        limit = STORAGE_THRESHOLD * 1024**3
+        acpt = await sync_to_async(
+            check_storage_threshold,
+            listener.size,
+            limit,
+            arch
+        )
+        if not acpt:
+            limit_exceeded = f"Don't have enough free space for your task.\nYou must leave {get_readable_file_size(limit)} free storage"
+    if limit_exceeded:
+        return f"{limit_exceeded}.\n⚠ Your task size is {get_readable_file_size(listener.size)}"
