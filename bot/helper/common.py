@@ -145,6 +145,8 @@ class TaskConfig:
                 raise ValueError(f"NO TOKEN! {token_path} not Exists!")
 
     async def beforeStart(self):
+        if (config_dict["DISABLE_SEED"] and self.seed):
+            raise ValueError("Seed is Disabled!")
         self.nameSub = (
             self.nameSub
             or self.userDict.get("name_sub", False)

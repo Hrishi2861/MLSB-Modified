@@ -905,6 +905,9 @@ async def load_config():
     STORAGE_THRESHOLD = environ.get("STORAGE_THRESHOLD", "")
     STORAGE_THRESHOLD = ("" if len(STORAGE_THRESHOLD) == 0 else float(STORAGE_THRESHOLD))
 
+    DISABLE_SEED = environ.get("DISABLE_SEED", "")
+    DISABLE_SEED = DISABLE_SEED.lower() == "true"
+
     if GDRIVE_ID:
         DRIVES_NAMES.append("Main")
         DRIVES_IDS.append(GDRIVE_ID)
@@ -934,6 +937,7 @@ async def load_config():
             "DEFAULT_UPLOAD": DEFAULT_UPLOAD,
             "DELETE_LINKS": DELETE_LINKS,
             "DIRECT_LIMIT": DIRECT_LIMIT,
+            "DISABLE_SEED": DISABLE_SEED,
             "DOWNLOAD_DIR": DOWNLOAD_DIR,
             "EQUAL_SPLITS": EQUAL_SPLITS,
             "EXTENSION_FILTER": EXTENSION_FILTER,
