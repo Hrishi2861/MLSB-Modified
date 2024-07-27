@@ -66,6 +66,9 @@ async def stats(ctx):
     total, used, free, disk = disk_usage("/")
     swap = swap_memory()
     memory = virtual_memory()
+    sent = get_readable_file_size(net_io_counters().bytes_sent)
+    recv = get_readable_file_size(net_io_counters().bytes_recv)
+    tb = get_readable_file_size(net_io_counters().bytes_sent + net_io_counters().bytes_recv)
     stats = (
         f"<b>📆 Commit Date:</b> {last_commit}\n\n"
         f"<b>🤖 Bot Uptime:</b> {get_readable_time(time() - botStartTime)}\n"
@@ -82,7 +85,10 @@ async def stats(ctx):
         f"<b>⚡ SWAP:</b> {get_readable_file_size(swap.total)} | <b>👀 Used:</b> {swap.percent}%\n"
         f"<b>🧨 Memory Total:</b> {get_readable_file_size(memory.total)}\n"
         f"<b>🗿 Memory Free:</b> {get_readable_file_size(memory.available)}\n"
-        f"<b>📱 Memory Used:</b> {get_readable_file_size(memory.used)}\n"
+        f"<b>📱 Memory Used:</b> {get_readable_file_size(memory.used)}\n\n"
+        f"<b>😳 Bandwidth Sent:</b> {sent}\n"
+        f"<b>💀 Bandwidth Received:</b> {recv}\n"
+        f"<b>🥵 Bandwidth Total:</b> {tb}"
     )
     await sendMessage(ctx.event.message, stats)
 
