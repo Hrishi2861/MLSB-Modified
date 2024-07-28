@@ -22,6 +22,7 @@ from bot import (
     LOGGER,
     Intervals,
     scheduler,
+    config_dict
 )
 from .helper.ext_utils.bot_utils import cmd_exec, sync_to_async, create_help_buttons
 from .helper.ext_utils.files_utils import clean_all, exit_clean_up
@@ -69,7 +70,12 @@ async def stats(ctx):
     sent = get_readable_file_size(net_io_counters().bytes_sent)
     recv = get_readable_file_size(net_io_counters().bytes_recv)
     tb = get_readable_file_size(net_io_counters().bytes_sent + net_io_counters().bytes_recv)
+    DIR = "Unlimited" if config_dict["DIRECT_LIMIT"] == "" else config_dict["DIRECT_LIMIT"]
+    GDL = "Unlimited" if config_dict["GDRIVE_LIMIT"] == "" else config_dict["GDRIVE_LIMIT"]
+    TOR = "Unlimited" if config_dict["TORRENT_LIMIT"] == "" else config_dict["TORRENT_LIMIT"]
+    MGA = "Unlimited" if config_dict["MEGA_LIMIT"] == "" else config_dict["MEGA_LIMIT"]
     stats = (
+        f"<b> Bot/System Stats\n\n"
         f"<b>📆 Commit Date:</b> {last_commit}\n\n"
         f"<b>🤖 Bot Uptime:</b> {get_readable_time(time() - botStartTime)}\n"
         f"<b>💻 OS Uptime:</b> {get_readable_time(time() - boot_time())}\n\n"
@@ -87,8 +93,13 @@ async def stats(ctx):
         f"<b>🗿 Memory Free:</b> {get_readable_file_size(memory.available)}\n"
         f"<b>📱 Memory Used:</b> {get_readable_file_size(memory.used)}\n\n"
         f"<b>😳 Bandwidth Sent:</b> {sent}\n"
-        f"<b>💀 Bandwidth Received:</b> {recv}\n"
-        f"<b>🥵 Bandwidth Total:</b> {tb}"
+        f"<b>🥵 Bandwidth Received:</b> {recv}\n"
+        f"<b>💀 Bandwidth Total:</b> {tb}\n\n\n"
+        f"<b>📊 Limits </b>\n\n"
+        f"<b>🧲 Torrent   : {TOR}</b>\n"
+        f"<b>⚡️ Gdrive    : {GDL}</b>\n"
+        f"<b>⭕️ Mega      : {MGA}</b>\n"
+        f"<b>🚀 Direct    : {DIR}</b>\n"
     )
     await sendMessage(ctx.event.message, stats)
 
