@@ -96,10 +96,10 @@ async def stats(ctx):
         f"<b>🥵 Bandwidth Received:</b> {recv}\n"
         f"<b>💀 Bandwidth Total:</b> {tb}\n\n\n"
         f"<b>📊 Limits </b>\n\n"
-        f"<b>🧲 Torrent   : {TOR}</b>\n"
-        f"<b>⚡️ Gdrive    : {GDL}</b>\n"
-        f"<b>⭕️ Mega      : {MGA}</b>\n"
-        f"<b>🚀 Direct    : {DIR}</b>\n"
+        f"<b>🧲 Torrent: {int(TOR)}GB</b>\n"
+        f"<b>⚡️ Gdrive: {int(GDL)}GB</b>\n"
+        f"<b>⭕️ Mega: {int(MGA)}GB</b>\n"
+        f"<b>🚀 Direct: {int(DIR)}GB</b>\n"
     )
     await sendMessage(ctx.event.message, stats)
 
